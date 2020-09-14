@@ -29,10 +29,10 @@ class AmqpBroker implements Broker
 
     /**
      * AmqpBroker constructor.
-     * @param AmqpConnector $connector
+     * @param Connector $connector
      * @param array $config
      */
-    public function __construct(AmqpConnector $connector, array $config)
+    public function __construct(Connector $connector, array $config)
     {
         $this->connector = $connector;
         $this->config = $config;
@@ -46,18 +46,18 @@ class AmqpBroker implements Broker
      */
     public function connection(string $connection): Connection
     {
-        $targets = Arr::get($this->config, $key = "$connection.targets", null);
-        if ( ! $targets) {
+        $targets = Arr::get($this->config, $key = "connections.$connection.targets", null);
+        if ( ! \is_array($targets)) {
             throw ConfigurationException::optionNotFound($key, "targets configuration");
         }
 
-        $sources = Arr::get($this->config, $key = "$connection.sources", null);
-        if ( ! $sources) {
+        $sources = Arr::get($this->config, $key = "connections.$connection.sources", null);
+        if ( ! \is_array($sources)) {
             throw ConfigurationException::optionNotFound($key, "sources configuration");
         }
 
         if ( ! isset(static::$connections[$connection])) {
-            $params = Arr::get($this->config, $key = "$connection.params", null);
+            $params = Arr::get($this->config, $key = "connections.$connection.params", null);
             if (! $params) {
                 throw ConfigurationException::optionNotFound($key, "connection params");
             }

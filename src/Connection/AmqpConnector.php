@@ -5,7 +5,7 @@ declare(strict_types=1);
 namespace Denismitr\LaravelMQ\Connection;
 
 
-use Denismitr\LaravelMQ\Exceptions\ConnectionException;
+use Denismitr\LaravelMQ\Exception\ConnectionException;
 use Illuminate\Support\Arr;
 use PhpAmqpLib\Connection\AbstractConnection;
 use PhpAmqpLib\Connection\AMQPLazyConnection;
@@ -18,10 +18,10 @@ class AmqpConnector implements Connector
     public function connect(array $config): AbstractConnection
     {
         /** @var AbstractConnection $connection */
-        $connection = Arr::get($config, 'connection', AMQPLazyConnection::class);
+        $connection = Arr::get($config, 'type', AMQPLazyConnection::class);
 
         // disable heartbeat when not configured, so long-running tasks will not fail
-        $config = Arr::add($config, 'options.heartbeat', 0);
+        $config = Arr::add($config, 'heartbeat', 0);
 
         try {
             return $connection::create_connection(

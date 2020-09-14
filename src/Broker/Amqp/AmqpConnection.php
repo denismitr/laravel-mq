@@ -146,7 +146,7 @@ class AmqpConnection implements Connection
 
     private function getPublishChannel(): AMQPChannel
     {
-        if ( ! $this->publishChannel) {
+        if ( ! $this->publishChannel || $this->publishChannel->is_open()) {
             $id = mt_rand(1, PHP_INT_MAX); // fixme
             $this->publishChannel = $this->connection->channel($id);
         }
