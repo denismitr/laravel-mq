@@ -10,7 +10,7 @@ use Denismitr\LaravelMQ\Broker\Amqp\AmqpChannelIdProvider;
 use Denismitr\LaravelMQ\Broker\Amqp\AmqpConnection;
 use Denismitr\LaravelMQ\Broker\Broker;
 use Denismitr\LaravelMQ\Broker\Connection;
-use Denismitr\LaravelMQ\Connection\AmqpConnector;
+use Denismitr\LaravelMQ\Connectors\AmqpConnector;
 use Denismitr\LaravelMQ\Tests\BaseTestCase;
 
 class AmqpBrokerTest extends BaseTestCase

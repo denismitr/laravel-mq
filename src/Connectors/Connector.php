@@ -2,7 +2,7 @@
 
 declare(strict_types=1);
 
-namespace Denismitr\LaravelMQ\Connection;
+namespace Denismitr\LaravelMQ\Connectors;
 
 
 use Denismitr\LaravelMQ\Exception\ConnectionException;

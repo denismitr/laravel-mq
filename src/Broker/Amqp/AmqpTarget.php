@@ -6,13 +6,14 @@ namespace Denismitr\LaravelMQ\Broker\Amqp;
 
 
 use Denismitr\LaravelMQ\Broker\Message;
+use Denismitr\LaravelMQ\Broker\Target;
 use Denismitr\LaravelMQ\Exception\ProducerException;
 use PhpAmqpLib\Channel\AMQPChannel;
 use PhpAmqpLib\Connection\AbstractConnection;
 use PhpAmqpLib\Message\AMQPMessage;
 use Throwable;
 
-class AmqpProducer
+class AmqpTarget implements Target
 {
     /**
      * @var AbstractConnection
@@ -71,7 +72,7 @@ class AmqpProducer
      * @param array $options
      * @throws ProducerException
      */
-    public function produce(Message $message, array $options = []): void
+    public function send(Message $message, array $options = []): void
     {
         try {
             $this->getChannel()->basic_publish(

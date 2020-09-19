@@ -7,6 +7,7 @@ namespace Denismitr\LaravelMQ\Broker\Amqp;
 
 use Closure;
 use Denismitr\LaravelMQ\Broker\Message;
+use Denismitr\LaravelMQ\Broker\Source;
 use Denismitr\LaravelMQ\Exception\ConsumerException;
 use Denismitr\LaravelMQ\Exception\ConsumerTimeoutException;
 use Denismitr\LaravelMQ\Exception\StopConsuming;
@@ -16,7 +17,7 @@ use PhpAmqpLib\Exception\AMQPTimeoutException;
 use PhpAmqpLib\Message\AMQPMessage;
 use Throwable;
 
-class AmqpConsumer
+class AmqpSource implements Source
 {
     /**
      * @var AbstractConnection
@@ -80,9 +81,11 @@ class AmqpConsumer
 
     /**
      * @param Closure $closure
+     * @param array $options
      * @throws ConsumerException
+     * @throws ConsumerTimeoutException
      */
-    public function consume(Closure $closure): void
+    public function read(Closure $closure, array $options = []): void
     {
         $this->getChannel()->basic_consume(
             $this->queue,
@@ -92,8 +95,8 @@ class AmqpConsumer
             false,
             false,
             function (AMQPMessage $message) use ($closure) {
-                $resolve = new AmqpResolve($this->channel, $message);
-                $reject = new AmqpReject($this->channel, $message);
+                $resolve = new AmqpResolver($this->channel, $message);
+                $reject = new AmqpRejecter($this->channel, $message);
                 $body = $message->getBody();
                 $encoding = $message->getContentEncoding();
 

@@ -5,12 +5,10 @@ declare(strict_types=1);
 namespace Denismitr\LaravelMQ\Broker\Amqp;
 
 
-use Closure;
 use Denismitr\LaravelMQ\Broker\Connection;
-use Denismitr\LaravelMQ\Broker\Message;
+use Denismitr\LaravelMQ\Broker\Source;
+use Denismitr\LaravelMQ\Broker\Target;
 use Denismitr\LaravelMQ\Exception\ConfigurationException;
-use Denismitr\LaravelMQ\Exception\ConsumerException;
-use Denismitr\LaravelMQ\Exception\ProducerException;
 use Illuminate\Support\Arr;
 use PhpAmqpLib\Connection\AbstractConnection;
 
@@ -19,11 +17,11 @@ class AmqpConnection implements Connection
     /** @var AbstractConnection */
     private $connection;
 
-    /** @var AmqpConsumer */
-    private $consumer;
+    /** @var Source[]] */
+    private $sourceInstances = [];
 
-    /** @var AmqpProducer|null */
-    private $producer = null;
+    /** @var Target[] */
+    private $targetInstances = [];
 
     /** @var array */
     private $targets;
@@ -56,10 +54,10 @@ class AmqpConnection implements Connection
 
     /**
      * @param string $target
-     * @param Message $message
-     * @throws ConfigurationException|ProducerException
+     * @return Target
+     * @throws ConfigurationException
      */
-    public function produce(string $target, Message $message): void
+    public function target(string $target): Target
     {
         $params = $this->targets[$target] ?? null;
         if ( ! $params) {
@@ -76,8 +74,8 @@ class AmqpConnection implements Connection
             );
         }
 
-        if ( ! $this->producer) {
-            $this->producer = new AmqpProducer(
+        if ( ! isset($this->targetInstances[$target])) {
+            $this->targetInstances[$target] = new AmqpTarget(
                 $this->connection,
                 $this->idProvider,
                 $exchange,
@@ -85,16 +83,15 @@ class AmqpConnection implements Connection
             );
         }
 
-        $this->producer->produce($message);
+        return $this->targetInstances[$target];
     }
 
     /**
      * @param string $source
-     * @param Closure $closure
+     * @return Source
      * @throws ConfigurationException
-     * @throws ConsumerException
      */
-    public function consume(string $source, Closure $closure): void
+    public function source(string $source): Source
     {
         $params = $this->sources[$source] ?? null;
         if ( ! $params) {
@@ -112,8 +109,8 @@ class AmqpConnection implements Connection
             );
         }
 
-        if ( ! $this->consumer) {
-            $this->consumer = new AmqpConsumer(
+        if ( ! isset($this->sourceInstances[$source])) {
+            $this->sourceInstances[$source] = new AmqpSource(
                 $this->connection,
                 $this->idProvider,
                 $consumerTag,
@@ -122,6 +119,6 @@ class AmqpConnection implements Connection
             );
         }
 
-        $this->consumer->consume($closure);
+        return $this->sourceInstances[$source];
     }
 }

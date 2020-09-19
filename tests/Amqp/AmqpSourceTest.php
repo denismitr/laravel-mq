@@ -7,7 +7,7 @@ namespace Denismitr\LaravelMQ\Tests\Amqp;
 
 use Closure;
 use Denismitr\LaravelMQ\Broker\Amqp\AmqpChannelIdProvider;
-use Denismitr\LaravelMQ\Broker\Amqp\AmqpConsumer;
+use Denismitr\LaravelMQ\Broker\Amqp\AmqpSource;
 use Denismitr\LaravelMQ\Broker\Message;
 use Denismitr\LaravelMQ\Broker\Rejecter;
 use Denismitr\LaravelMQ\Broker\Resolver;
@@ -16,12 +16,12 @@ use PhpAmqpLib\Channel\AMQPChannel;
 use PhpAmqpLib\Connection\AbstractConnection;
 use Mockery as m;
 
-class AmqpConsumerTest extends BaseTestCase
+class AmqpSourceTest extends BaseTestCase
 {
     /**
      * @test
      */
-    public function it_can_consume_a_message_from_queue()
+    public function it_can_read_a_message_from_queue()
     {
         $idProviderMock = m::mock(AmqpChannelIdProvider::class);
         $connMock = m::mock(AbstractConnection::class);
@@ -31,7 +31,7 @@ class AmqpConsumerTest extends BaseTestCase
         $queue = 'some-queue';
         $timeout = 5;
 
-        $consumer = new AmqpConsumer(
+        $source = new AmqpSource(
             $connMock,
             $idProviderMock,
             $tag,
@@ -64,7 +64,7 @@ class AmqpConsumerTest extends BaseTestCase
         $channelMock->expects('is_open')->times(3)->andReturn(true);
         $channelMock->expects('close')->times(0);
 
-        $consumer->consume(function(Message $message, Resolver $resolver, Rejecter $rejecter) {
+        $source->read(function(Message $message, Resolver $resolver, Rejecter $rejecter) {
             $this->assertFalse($message->isEmpty());
             $this->assertTrue($message->isJson());
 

@@ -7,6 +7,8 @@ namespace Denismitr\LaravelMQ\Tests\Amqp;
 
 use Denismitr\LaravelMQ\Broker\Amqp\AmqpChannelIdProvider;
 use Denismitr\LaravelMQ\Broker\Amqp\AmqpConnection;
+use Denismitr\LaravelMQ\Broker\Amqp\AmqpTarget;
+use Denismitr\LaravelMQ\Broker\Target;
 use Denismitr\LaravelMQ\Exception\ConfigurationException;
 use Denismitr\LaravelMQ\Tests\BaseTestCase;
 use Denismitr\LaravelMQ\Broker\Message;
@@ -20,49 +22,58 @@ class AmqpConnectionTest extends BaseTestCase
     /**
      * @test
      */
-    public function it_can_instantiate_producer_and_send_message()
+    public function it_can_instantiate_target_from_name()
     {
-        $msg = Message::fromJsonData([
-            'foo' => 'bar',
-            'baz' => 123,
-        ]);
-
         $connMock = m::mock(AbstractConnection::class);
-        $idProviderMock = m::mock(AmqpChannelIdProvider::class);
-        $channelMock = m::mock(AMQPChannel::class);
 
-        $conn = new AmqpConnection($connMock, $idProviderMock, [
+        $amqpConn = new AmqpConnection($connMock, new AmqpChannelIdProvider(), [
             'some-target' => [
                 'exchange' => 'some-exchange',
                 'routing_key' => 'some-routing-key'
             ]
         ], []);
 
-        $idProviderMock->expects('provide')->andReturn(99);
+        $target = $amqpConn->target('some-target');
 
-        $connMock->expects('channel')->with(99)->andReturn($channelMock);
-
-        $channelMock->expects('basic_publish')->withArgs(function(AMQPMessage $message, string $exchange, string $routingKey) {
-            $this->assertEquals('{"foo":"bar","baz":123}', $message->body, 'message body invalid');
-            $this->assertEquals([
-                'content_type' => 'application/json',
-                'delivery_mode' => 2,
-            ], $message->get_properties(), 'message properties invalid');
-            $this->assertEquals('some-exchange', $exchange, 'exchange invalid');
-            $this->assertEquals('some-routing-key', $routingKey, 'routing key invalid');
-            return true;
-        })->andReturn(null);
-
-        $channelMock->expects('is_open')->once()->andReturn(true);
-        $channelMock->expects('close')->once();
-
-        $conn->produce('some-target', $msg);
+        $this->assertInstanceOf(Target::class, $target);
+        $this->assertInstanceOf(AmqpTarget::class, $target);
     }
 
     /**
      * @test
      */
-    public function it_will_throw_exception_on_invalid_target()
+    public function it_caches_target_by_name()
+    {
+        $connMock = m::mock(AbstractConnection::class);
+
+        $amqpConn = new AmqpConnection($connMock, new AmqpChannelIdProvider(), [
+            'some-target' => [
+                'exchange' => 'some-exchange',
+                'routing_key' => 'some-routing-key'
+            ],
+            'another-target' => [
+                'exchange' => 'another-exchange',
+                'routing_key' => 'another-routing-key'
+            ]
+        ], []);
+
+        $targetA = $amqpConn->target('some-target');
+        $targetB = $amqpConn->target('some-target');
+        $targetC = $amqpConn->target('another-target');
+
+        $this->assertInstanceOf(Target::class, $targetA);
+        $this->assertInstanceOf(AmqpTarget::class, $targetB);
+        $this->assertSame($targetA, $targetB);
+
+        $this->assertInstanceOf(Target::class, $targetC);
+        $this->assertInstanceOf(AmqpTarget::class, $targetC);
+        $this->assertNotSame($targetA, $targetC);
+    }
+
+    /**
+     * @test
+     */
+    public function it_will_throw_exception_on_invalid_target_name()
     {
         $this->expectException(ConfigurationException::class);
 
@@ -76,6 +87,6 @@ class AmqpConnectionTest extends BaseTestCase
             ]
         ], []);
 
-        $conn->produce('some-target-invalid', Message::fromJsonData(['foo' => 555]));
+        $conn->target('some-target-invalid');
     }
 }

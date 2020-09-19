@@ -5,11 +5,11 @@ declare(strict_types=1);
 namespace Denismitr\LaravelMQ\Broker\Amqp;
 
 
-use Denismitr\LaravelMQ\Broker\Resolver;
+use Denismitr\LaravelMQ\Broker\Rejecter;
 use PhpAmqpLib\Channel\AMQPChannel;
 use PhpAmqpLib\Message\AMQPMessage;
 
-class AmqpResolve implements Resolver
+class AmqpRejecter implements Rejecter
 {
     /**
      * @var AMQPMessage
@@ -32,8 +32,8 @@ class AmqpResolve implements Resolver
         $this->channel = $channel;
     }
 
-    public function resolve(): void
+    public function reject(bool $requeue): void
     {
-        $this->channel->basic_ack($this->message->getDeliveryTag());
+        $this->channel->basic_reject($this->message->getDeliveryTag(), $requeue);
     }
 }

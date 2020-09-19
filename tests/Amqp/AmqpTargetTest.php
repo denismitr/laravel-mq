@@ -6,7 +6,7 @@ namespace Denismitr\LaravelMQ\Tests\Amqp;
 
 
 use Denismitr\LaravelMQ\Broker\Amqp\AmqpChannelIdProvider;
-use Denismitr\LaravelMQ\Broker\Amqp\AmqpProducer;
+use Denismitr\LaravelMQ\Broker\Amqp\AmqpTarget;
 use Denismitr\LaravelMQ\Broker\Message;
 use Denismitr\LaravelMQ\Tests\BaseTestCase;
 use Mockery as m;
@@ -14,7 +14,7 @@ use PhpAmqpLib\Channel\AMQPChannel;
 use PhpAmqpLib\Connection\AbstractConnection;
 use PhpAmqpLib\Message\AMQPMessage;
 
-class AmqpProducerTest extends BaseTestCase
+class AmqpTargetTest extends BaseTestCase
 {
     /**
      * @test
@@ -30,7 +30,7 @@ class AmqpProducerTest extends BaseTestCase
         $connection = m::mock(AbstractConnection::class);
         $channel = m::mock(AMQPChannel::class);
 
-        $producer = new AmqpProducer(
+        $target = new AmqpTarget(
             $connection,
             $channelIdProvider,
             'some-exchange',
@@ -54,6 +54,6 @@ class AmqpProducerTest extends BaseTestCase
 
         $channel->expects('is_open')->andReturn(false);
 
-        $producer->produce($msg);
+        $target->send($msg);
     }
 }

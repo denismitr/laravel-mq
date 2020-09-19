@@ -7,7 +7,7 @@ namespace Denismitr\LaravelMQ\Broker\Amqp;
 
 use Denismitr\LaravelMQ\Broker\Broker;
 use Denismitr\LaravelMQ\Broker\Connection;
-use Denismitr\LaravelMQ\Connection\Connector;
+use Denismitr\LaravelMQ\Connectors\Connector;
 use Denismitr\LaravelMQ\Exception\ConfigurationException;
 use Denismitr\LaravelMQ\Exception\ConnectionException;
 use Illuminate\Support\Arr;
