@@ -48,6 +48,7 @@ class AmqpProducerTest extends BaseTestCase
             ], $message->get_properties(), 'message properties invalid');
             $this->assertEquals('some-exchange', $exchange, 'exchange invalid');
             $this->assertEquals('some-routing-key', $routingKey, 'routing key invalid');
+
             return true;
         })->andReturn(null);
 

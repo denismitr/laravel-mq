@@ -5,10 +5,11 @@ declare(strict_types=1);
 namespace Denismitr\LaravelMQ\Broker\Amqp;
 
 
+use Denismitr\LaravelMQ\Broker\Resolver;
 use PhpAmqpLib\Channel\AMQPChannel;
 use PhpAmqpLib\Message\AMQPMessage;
 
-class AmqpResolve
+class AmqpResolve implements Resolver
 {
     /**
      * @var AMQPMessage
@@ -31,7 +32,7 @@ class AmqpResolve
         $this->channel = $channel;
     }
 
-    public function __invoke()
+    public function resolve(): void
     {
         $this->channel->basic_ack($this->message->getDeliveryTag());
     }

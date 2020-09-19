@@ -86,7 +86,7 @@ class AmqpProducer
 
     private function getChannel(): AMQPChannel
     {
-        if ( ! $this->channel || $this->channel->is_open()) {
+        if ( ! $this->channel || ! $this->channel->is_open()) {
             $this->channel = $this->connection->channel(
                 $this->channelIdProvider->provide()
             );

@@ -6,6 +6,7 @@ namespace Denismitr\LaravelMQ\Tests\Amqp;
 
 
 use Denismitr\LaravelMQ\Broker\Amqp\AmqpBroker;
+use Denismitr\LaravelMQ\Broker\Amqp\AmqpChannelIdProvider;
 use Denismitr\LaravelMQ\Broker\Amqp\AmqpConnection;
 use Denismitr\LaravelMQ\Broker\Broker;
 use Denismitr\LaravelMQ\Broker\Connection;
@@ -19,7 +20,7 @@ class AmqpBrokerTest extends BaseTestCase
      */
     public function it_can_create_amqp_connection()
     {
-        $broker = new AmqpBroker(new AmqpConnector(), config('mq'));
+        $broker = new AmqpBroker(new AmqpConnector(), new AmqpChannelIdProvider(), config('mq'));
         $this->assertInstanceOf(Broker::class, $broker);
 
         $connection = $broker->connection('default');
