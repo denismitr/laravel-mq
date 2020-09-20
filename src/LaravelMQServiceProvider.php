@@ -14,4 +14,11 @@ class LaravelMQServiceProvider extends ServiceProvider
     {
         $this->mergeConfigFrom(__DIR__ . '/../config/mq.php', 'mq');
     }
+
+    public function boot()
+    {
+        $this->publishes([
+            __DIR__ . '/../config/mq.php' => config_path('mq.php'),
+        ]);
+    }
 }
