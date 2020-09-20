@@ -3,8 +3,10 @@
 return [
     'connections' => [
         'default' => [
+            'driver' => 'rabbitmq',
+
             'params' => [
-                'type' => PhpAmqpLib\Connection\AMQPLazyConnection::class,
+                'connection' => PhpAmqpLib\Connection\AMQPLazyConnection::class,
 
                 'hosts' => [
                     [

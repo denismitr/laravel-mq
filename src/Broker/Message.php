@@ -69,6 +69,10 @@ class Message implements \JsonSerializable
         return (int) $this->attempt;
     }
 
+    /**
+     * @return array|mixed
+     * @throws \JsonException
+     */
     public function jsonSerialize()
     {
         if ($this->isEmpty()) {
@@ -79,11 +83,19 @@ class Message implements \JsonSerializable
             return $this->jsonData;
         }
 
-        return json_decode($this->rawBody, true, JSON_THROW_ON_ERROR);
+        return json_decode($this->rawBody, true, 512, JSON_THROW_ON_ERROR);
     }
 
+    /**
+     * @return string|null
+     * @throws \JsonException
+     */
     public function rawBody(): ?string
     {
+        if ($this->jsonData) {
+            return json_encode($this->jsonData, JSON_THROW_ON_ERROR);
+        }
+
         return $this->rawBody;
     }
 

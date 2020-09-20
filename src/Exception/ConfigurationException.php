@@ -5,6 +5,8 @@ declare(strict_types=1);
 namespace Denismitr\LaravelMQ\Exception;
 
 
+use League\CommonMark\Inline\Element\Code;
+
 class ConfigurationException extends LaravelMQException
 {
     public static function optionNotFound(string $path, string $expected = null): ConfigurationException
@@ -16,6 +18,16 @@ class ConfigurationException extends LaravelMQException
         }
 
         return new static($msg, Codes::OPTION_NOT_FOUND);
+    }
+
+    public static function connectionsNotFound(): ConfigurationException
+    {
+        return new static("Connections key in [mq.php] config file not found!", Codes::CONNECTIONS_NOT_FOUND);
+    }
+
+    public static function connectionNotFound(string $connection): ConfigurationException
+    {
+        return new static("Connection [{$connection}] not found!", Codes::CONNECTION_NOT_FOUND);
     }
 
     public static function targetNotFound(string $target): ConfigurationException
@@ -36,5 +48,15 @@ class ConfigurationException extends LaravelMQException
     public static function targetInvalid(string $target, string $details = ''): ConfigurationException
     {
         return new static("Target {$target} is not configured properly. {$details}", Codes::TARGET_INVALID);
+    }
+
+    public static function invalidDriver(string $driver)
+    {
+        return new static("Driver [{$driver}] is not supported.", Codes::WRONG_DRIVER);
+    }
+
+    public static function driverNotFound()
+    {
+        return new static("Driver configuration not found.", Codes::NO_DRIVER_CFG);
     }
 }

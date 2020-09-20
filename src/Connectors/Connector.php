@@ -5,15 +5,15 @@ declare(strict_types=1);
 namespace Denismitr\LaravelMQ\Connectors;
 
 
+use Denismitr\LaravelMQ\Broker\Connection;
 use Denismitr\LaravelMQ\Exception\ConnectionException;
-use PhpAmqpLib\Connection\AbstractConnection;
 
 interface Connector
 {
     /**
      * @param array $config
-     * @return AbstractConnection
      * @throws ConnectionException
+     * @return Connection
      */
-    public function connect(array $config): AbstractConnection;
+    public function connect(array $config): Connection;
 }
