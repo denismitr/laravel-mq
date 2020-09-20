@@ -13,7 +13,10 @@ class Factory
     public function make(string $driver): Connector
     {
         if (strtolower($driver) === 'amqp' || strtolower($driver) === 'rabbitmq') {
-            return new AmqpConnector(new AmqpChannelIdProvider());
+            return new AmqpConnector(
+                new AmqpConnectionBuilder(),
+                new AmqpChannelIdProvider()
+            );
         }
 
         throw ConfigurationException::invalidDriver($driver);

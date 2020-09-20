@@ -59,4 +59,9 @@ class ConfigurationException extends LaravelMQException
     {
         return new static("Driver configuration not found.", Codes::NO_DRIVER_CFG);
     }
+
+    public static function invalidConnectionClass(string $className, string $msg)
+    {
+        return new static("Invalid connection class {$className}: {$msg}", Codes::INVALID_CONNECTION_CLASS);
+    }
 }

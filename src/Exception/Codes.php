@@ -18,4 +18,5 @@ class Codes
     const CONNECTIONS_NOT_FOUND = 9;
     const WRONG_DRIVER = 10;
     const NO_DRIVER_CFG = 11;
+    const INVALID_CONNECTION_CLASS = 12;
 }

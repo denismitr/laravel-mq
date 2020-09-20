@@ -22,12 +22,19 @@ class AmqpConnector implements Connector
     private $idProvider;
 
     /**
+     * @var AmqpConnectionBuilder
+     */
+    private $builder;
+
+    /**
      * AmqpConnector constructor.
+     * @param AmqpConnectionBuilder $builder
      * @param AmqpChannelIdProvider $idProvider
      */
-    public function __construct(AmqpChannelIdProvider $idProvider)
+    public function __construct(AmqpConnectionBuilder $builder, AmqpChannelIdProvider $idProvider)
     {
         $this->idProvider = $idProvider;
+        $this->builder = $builder;
     }
 
     /**
@@ -56,14 +63,13 @@ class AmqpConnector implements Connector
             throw ConfigurationException::optionNotFound($key, "connection params");
         }
 
-        try {
-            $connection = $connectionClass::create_connection(
-                Arr::shuffle(Arr::get($config, 'params.hosts', [])),
-                $this->filter(Arr::get($config, 'params.options', []))
-            );
-        } catch (\Throwable $t) {
-            throw ConnectionException::from($t);
-        }
+        $connection = $this
+            ->builder
+            ->withOptions(Arr::get($params, 'options', []))
+            ->withHosts(Arr::get($params, 'hosts', []))
+            ->withConnectionClass($connectionClass)
+            ->build()
+        ;
 
         return new AmqpConnection(
             $connection,
@@ -71,28 +77,5 @@ class AmqpConnector implements Connector
             $targets,
             $sources
         );
-    }
-
-    /**
-     * Recursively filter only null values.
-     *
-     * @param array $array
-     * @return array
-     */
-    private function filter(array $array): array
-    {
-        foreach ($array as $k=>&$v) {
-            if (\is_array($v)) {
-                $v = $this->filter($v);
-                continue;
-            }
-
-            if (\is_null($v)) {
-                unset($v[$k]);
-                continue;
-            }
-        }
-
-        return $array;
     }
 }
