@@ -36,7 +36,7 @@ class AmqpConnector implements Connector
     public function connect(array $config): Connection
     {
         /** @var AbstractConnection $connection */
-        $connection = Arr::get($config, 'connection', AMQPLazyConnection::class);
+        $connectionClass = Arr::get($config, 'connection_class', AMQPLazyConnection::class);
 
         // disable heartbeat when not configured, so long-running tasks will not fail
         $config = Arr::add($config, 'params.options.heartbeat', 0);
@@ -57,7 +57,7 @@ class AmqpConnector implements Connector
         }
 
         try {
-            $connection = $connection::create_connection(
+            $connection = $connectionClass::create_connection(
                 Arr::shuffle(Arr::get($config, 'params.hosts', [])),
                 $this->filter(Arr::get($config, 'params.options', []))
             );

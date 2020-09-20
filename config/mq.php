@@ -6,7 +6,7 @@ return [
             'driver' => 'rabbitmq',
 
             'params' => [
-                'connection' => PhpAmqpLib\Connection\AMQPLazyConnection::class,
+                'connection_class' => PhpAmqpLib\Connection\AMQPLazyConnection::class,
 
                 'hosts' => [
                     [
