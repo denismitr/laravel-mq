@@ -20,23 +20,32 @@ class Message implements \JsonSerializable
     /** @var string */
     private $contentEncoding;
 
+    /**
+     * @var int|null
+     */
+    private $attempt;
+
     private function __construct()
     {}
 
-    public static function fromRawBody(string $rawBody, string $contentEncoding, array $params = []): Message
+    public static function fromRawBody(string $rawBody, string $contentEncoding, ?int $attempts = null, array $params = []): Message
     {
         $msg = new static();
         $msg->rawBody = $rawBody;
         $msg->params = $params;
         $msg->contentEncoding = $contentEncoding;
+        $msg->attempt = $attempts;
+
         return $msg;
     }
 
-    public static function fromJsonData(array $data, array $params = []): Message
+    public static function fromJsonData(array $data, ?int $attempts = null, array $params = []): Message
     {
         $msg = new static();
         $msg->jsonData = $data;
         $msg->contentEncoding = static::JSON;
+        $msg->attempt = $attempts;
+
         return $msg;
     }
 
@@ -50,6 +59,16 @@ class Message implements \JsonSerializable
         return empty($this->rawBody) && empty($this->jsonData);
     }
 
+    public function hasAttempt(): bool
+    {
+        return ! is_null($this->attempt);
+    }
+
+    public function attempt(): int
+    {
+        return (int) $this->attempt;
+    }
+
     public function jsonSerialize()
     {
         if ($this->isEmpty()) {
@@ -61,5 +80,15 @@ class Message implements \JsonSerializable
         }
 
         return json_decode($this->rawBody, true, JSON_THROW_ON_ERROR);
+    }
+
+    public function rawBody(): ?string
+    {
+        return $this->rawBody;
+    }
+
+    public function contentEncoding(): string
+    {
+        return $this->contentEncoding;
     }
 }

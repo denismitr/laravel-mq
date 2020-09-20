@@ -95,12 +95,19 @@ class AmqpSource implements Source
             false,
             false,
             function (AMQPMessage $message) use ($closure) {
-                $resolve = new AmqpResolver($this->channel, $message);
-                $reject = new AmqpRejecter($this->channel, $message);
+                $control = new AmqpControl($this->channel, $message);
                 $body = $message->getBody();
                 $encoding = $message->getContentEncoding();
 
-                if ($closure(Message::fromRawBody($body, $encoding), $resolve, $reject) === false) {
+                $attempts = null;
+                if ($message->has(Headers::LARAVEL_MQ)) {
+                    $laravelMq = $message->get(Headers::LARAVEL_MQ);
+                    if (isset($laravelMq[Headers::ATTEMPTS])) {
+                        $attempts = (int) $laravelMq[Headers::ATTEMPTS];
+                    }
+                }
+
+                if ($closure(Message::fromRawBody($body, $encoding, $attempts), $control) === false) {
                     throw new StopConsuming();
                 }
             }

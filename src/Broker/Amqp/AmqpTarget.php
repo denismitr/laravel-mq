@@ -99,18 +99,20 @@ class AmqpTarget implements Target
     private function createMessage(Message $message, array $options = []): AMQPMessage
     {
         $properties = [
-            'content_type' => 'application/json',
+            'content_type' => $message->contentEncoding(),
             'delivery_mode' => AMQPMessage::DELIVERY_MODE_PERSISTENT,
         ];
 
-        $payload = json_encode($message);
+        $payload = $message->isJson() ? json_encode($message) : $message->rawBody();
 
         $msg = new AMQPMessage($payload, $properties);
 
-        if (isset($options['attempts'])) {
-            $msg->set('application_headers', [
-                'attempts' => (int) $options['attempts'],
-            ]);
+        if ($message->hasAttempt()) {
+            $msg->set('application_headers', new AMQPMessage([
+                Headers::LARAVEL_MQ => [
+                    Headers::ATTEMPTS => $message->attempt(),
+                ]
+            ]));
         }
 
         return $msg;

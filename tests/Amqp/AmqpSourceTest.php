@@ -8,9 +8,8 @@ namespace Denismitr\LaravelMQ\Tests\Amqp;
 use Closure;
 use Denismitr\LaravelMQ\Broker\Amqp\AmqpChannelIdProvider;
 use Denismitr\LaravelMQ\Broker\Amqp\AmqpSource;
+use Denismitr\LaravelMQ\Broker\Control;
 use Denismitr\LaravelMQ\Broker\Message;
-use Denismitr\LaravelMQ\Broker\Rejecter;
-use Denismitr\LaravelMQ\Broker\Resolver;
 use Denismitr\LaravelMQ\Tests\BaseTestCase;
 use PhpAmqpLib\Channel\AMQPChannel;
 use PhpAmqpLib\Connection\AbstractConnection;
@@ -64,11 +63,11 @@ class AmqpSourceTest extends BaseTestCase
         $channelMock->expects('is_open')->times(3)->andReturn(true);
         $channelMock->expects('close')->times(0);
 
-        $source->read(function(Message $message, Resolver $resolver, Rejecter $rejecter) {
+        $source->read(function(Message $message, Control $control) {
             $this->assertFalse($message->isEmpty());
             $this->assertTrue($message->isJson());
 
-            $resolver->resolve();
+            $control->resolve();
 
             return false;
         });
